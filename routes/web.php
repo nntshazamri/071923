@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\RegistrationController;
+use App\Http\Controllers\Register\RegisterController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\TestController;
@@ -24,8 +24,8 @@ Route::post('login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout']);
 
 //register user related
-Route::get('/register', [RegistrationController::class, 'showRegistrationForm']);
-Route::post('/register', [RegistrationController::class, 'registered']);
+Route::get('/register', [RegisterController::class, 'showForm'])->name('register');
+Route::post('/register', [RegisterController::class, 'registered'])->name('register.submit');
 
 
 //userprofile related

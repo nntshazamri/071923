@@ -31,7 +31,7 @@
     <div class="row justify-content-center">
       <div class="col-md-5">
         <h2 class="mb-4">Register</h2>
-        <form method="POST" action="{{ route('/register') }}">
+        <form method="POST" action="{{ route('register.submit') }}">
     @csrf
     <div class="mb-3 text-start">
         <label for="name" class="form-label">Full Name</label>
@@ -68,5 +68,12 @@
   </section>
 
   <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+@if(session('success'))
+<script>
+    window.onload = function() {
+        alert("{{ session('success') }}");
+    };
+@endif
+</script>
 </body>
 </html>

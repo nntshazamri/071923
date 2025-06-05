@@ -1,4 +1,5 @@
-namespace App\Http\Controllers;
+<?php
+namespace App\Http\Controllers\Register;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
@@ -6,9 +7,9 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Illuminate\Http\Request;
 
-class RegistrationController extends Controller
+class RegisterController extends Controller
 {
-    public function showRegistrationForm()
+    public function showForm()
     {
         return view('register');
     }
@@ -42,6 +43,6 @@ class RegistrationController extends Controller
         $user = $this->create($request->all());
 
         // Redirect to the home page or any other page you want
-        return redirect()->route('login');
+        return redirect()->route('login')->with('success', 'Registration successful! Please login.');
     }
 }
