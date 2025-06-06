@@ -23,9 +23,17 @@ class LoginController extends Controller
         \Log::info('Attempting login for email: ' . $request->email);
 
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $request->remember)) {
-            \Log::info('Login successful! Redirecting to profile.');
-            return redirect()->route('userprofile');
-        }
+    \Log::info('Login successful! Redirecting to correct dashboard.');
+
+    // Check role of user
+    $user = Auth::user();
+
+    if ($user->role === 'admin') {
+        return redirect()->route('admindashboard');
+    } else {
+        return redirect()->route('userprofile');
+    }
+}
 
         \Log::warning('Login failed for email: ' . $request->email);
         return back()->withErrors(['email' => 'Invalid credentials.'])->withInput();

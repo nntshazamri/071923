@@ -12,6 +12,14 @@ class UserController extends Controller
     {
         return view('user.editprofile');
     }
+    public function index()
+    {
+    // Fetch all users (you can add pagination if needed)
+    $users = \App\Models\User::all();
+
+    // Return the manageusers Blade view, passing the users data
+    return view('manageusers', compact('users'));
+    }
 
     public function update(Request $request)
     {
