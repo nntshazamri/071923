@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\SensorReading;      // 1) Import your model
+use Illuminate\Http\Request;
 
 class SensorDataController extends Controller
 {
@@ -13,7 +13,7 @@ class SensorDataController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate incoming fields (all nullable; we’ll cast to floats if present)
+        // 2) Validate incoming fields
         $data = $request->validate([
             'soil_moisture' => 'nullable|numeric',
             'temperature'   => 'nullable|numeric',
@@ -23,30 +23,14 @@ class SensorDataController extends Controller
             'longitude'     => 'nullable|numeric',
         ]);
 
-        // Build raw SQL with placeholders
-        $sql = "
-            INSERT INTO `sensor_readings`
-            (`soil_moisture`, `temperature`, `humidity`, `light`, `latitude`, `longitude`, `created_at`, `updated_at`)
-            VALUES
-            (?, ?, ?, ?, ?, ?, NOW(), NOW())
-        ";
+        // 3) Create a new record in sensor_readings via Eloquent
+        $reading = SensorReading::create($data);
 
-        // Cast each key to float or NULL if missing
-        $vals = [
-            array_key_exists('soil_moisture', $data) ? floatval($data['soil_moisture']) : null,
-            array_key_exists('temperature',   $data) ? floatval($data['temperature'])   : null,
-            array_key_exists('humidity',      $data) ? floatval($data['humidity'])      : null,
-            array_key_exists('light',         $data) ? floatval($data['light'])         : null,
-            array_key_exists('latitude',      $data) ? floatval($data['latitude'])      : null,
-            array_key_exists('longitude',     $data) ? floatval($data['longitude'])     : null,
-        ];
-
-        DB::insert($sql, $vals);
-
-        // Return a simple JSON response
+        // 4) Return a JSON response including the new record’s ID & timestamp
         return response()->json([
-            'status' => 'success',
-            'inserted_at' => now()->toDateTimeString(),
-        ]);
+            'status'      => 'success',
+            'inserted_id' => $reading->id,
+            'inserted_at' => $reading->created_at->toDateTimeString(),
+        ], 201);
     }
 }
