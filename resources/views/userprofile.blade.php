@@ -155,14 +155,12 @@
   </header>
 
   <!-- Sidebar -->
-  <div class="sidebar">
-    <div class="user-icon">
-      <i class="bi bi-person"></i>
-    </div>
-    <strong>USER</strong>
+<div class="sidebar">
+    <div class="user-icon"><i class="bi bi-person"></i></div>
+    <strong>{{ Auth::user()->name }}</strong>
     <a href="{{ route('userprofile') }}" class="nav-link {{ request()->is('userprofile') ? 'active' : '' }}">User Profile</a>
-    <a href="{{ url('/datamonitoring') }}" class="nav-link {{ request()->is('datamonitoring') ? 'active' : '' }}">Crop Data</a>
-    <a href="{{ url('/farmdetails') }}" class="nav-link {{ request()->is('farmdetails') ? 'active' : '' }}">Farm Details</a>
+    <a href="{{ route('datamonitoring') }}" class="nav-link {{ request()->is('datamonitoring') ? 'active' : '' }}">Crop Data</a>
+    <a href="{{ url('/farmdetails') }}" class="nav-link {{ request()->is('farmdetails') ? 'active' : '' }}">Manage Farms</a>
     <a href="#" class="nav-link">Report Visualization</a>
   </div>
 

@@ -7,6 +7,14 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\TestController;
 use App\Http\Controllers\ContactInquiryController;
+use App\Http\Controllers\DataMonitoringController;
+use App\Http\Controllers\FarmController;
+use App\Http\Controllers\PlotController;
+
+
+Route::middleware('auth')->group(function () {
+    Route::get('/datamonitoring', [DataMonitoringController::class, 'index'])->name('datamonitoring');
+});
 
 Route::get('/', function () {
     return view('home');
@@ -20,7 +28,10 @@ Route::get('/test', [TestController::class, 'test']);
 //login related
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('login', [LoginController::class, 'login']);
-Route::post('/logout', [LoginController::class, 'logout']);
+Route::post('/logout', function () {
+    Auth::logout();
+    return redirect('/login'); // or wherever you want to redirect after logout
+})->name('logout');
 
 //register user related
 Route::get('/register', [RegisterController::class, 'showForm'])->name('register');
@@ -47,11 +58,25 @@ Route::get('/contact', function () {
 Route::post('/contact', [ContactInquiryController::class, 'store'])->name('contact.store');
 
 
-//other pages frontend only
-Route::get('/datamonitoring', function () {
-    return view('datamonitoring'); 
-});
-
 Route::get('/farmdetails', function () {
     return view('farmdetails'); 
+});
+
+
+Route::middleware('auth')->group(function () {
+    // Farm routes
+    Route::get('/farmdetails', [FarmController::class, 'index'])->name('farms.index');
+    Route::get('/farmdetails/create', [FarmController::class, 'create'])->name('farms.create');
+    Route::post('/farmdetails', [FarmController::class, 'store'])->name('farms.store');
+    Route::get('/farmdetails/{farm}', [FarmController::class, 'show'])->name('farms.show');
+    Route::get('/farmdetails/{farm}/edit', [FarmController::class, 'edit'])->name('farms.edit');
+    Route::put('/farmdetails/{farm}', [FarmController::class, 'update'])->name('farms.update');
+    Route::delete('/farmdetails/{farm}', [FarmController::class, 'destroy'])->name('farms.destroy');
+
+    // Plot routes (nested under farm)
+    Route::get('/farmdetails/{farm}/plots/create', [PlotController::class, 'create'])->name('plots.create');
+    Route::post('/farmdetails/{farm}/plots', [PlotController::class, 'store'])->name('plots.store');
+    Route::get('/farmdetails/{farm}/plots/{plot}/edit', [PlotController::class, 'edit'])->name('plots.edit');
+    Route::put('/farmdetails/{farm}/plots/{plot}', [PlotController::class, 'update'])->name('plots.update');
+    Route::delete('/farmdetails/{farm}/plots/{plot}', [PlotController::class, 'destroy'])->name('plots.destroy');
 });

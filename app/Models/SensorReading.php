@@ -6,13 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class SensorReading extends Model
 {
-    // If your table is named sensor_readings (plural),
-    // Eloquent will pick it up automatically.
-    // Otherwise uncomment and set explicitly:
-    protected $table = 'sensor_readings';
+    // Table name is sensor_readings by default, so no need to set $table explicitly
+    // If your primary key is the default 'id', you don’t need to override $primaryKey.
 
-    // Allow mass assignment of these fields:
+    // Allow mass assignment of these fields, now including plotID:
     protected $fillable = [
+        'plotID',        // new field referencing the plot
         'soil_moisture',
         'temperature',
         'humidity',
@@ -20,4 +19,24 @@ class SensorReading extends Model
         'latitude',
         'longitude',
     ];
+
+    // If you want automatic casting to floats for latitude/longitude and numeric fields:
+    protected $casts = [
+        'soil_moisture' => 'float',
+        'temperature'   => 'float',
+        'humidity'      => 'float',
+        'light'         => 'float',
+        'latitude'      => 'float',
+        'longitude'     => 'float',
+        'plotID'        => 'integer', // or 'integer'/'string' depending on your needs
+    ];
+
+    /**
+     * Relationship: a SensorReading belongs to a Plot.
+     * Assumes you have a Plot model with primaryKey 'plotID'.
+     */
+    public function plot()
+    {
+        return $this->belongsTo(Plot::class, 'plotID', 'plotID');
+    }
 }

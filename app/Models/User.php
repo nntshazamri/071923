@@ -20,8 +20,17 @@ class User extends Authenticatable
     ];
 
     protected $hidden = [
-        'password',
+        'password', 'remember_token',
     ];
+    public function farms()
+    {
+        return $this->belongsToMany(
+            Farm::class,
+            'user_farms',
+            'userID',
+            'farmID'
+        );
+    }
 }
 
 
