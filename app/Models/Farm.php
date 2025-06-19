@@ -15,7 +15,7 @@ class Farm extends Model
     // Mass-assignable fields (ensure these columns exist in your `farms` table)
     protected $fillable = [
         'location',
-        // 'size',   // Uncomment if you added a `size` column via migration
+        'size'   
     ];
 
     /**

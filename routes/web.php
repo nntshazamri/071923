@@ -58,11 +58,6 @@ Route::get('/contact', function () {
 Route::post('/contact', [ContactInquiryController::class, 'store'])->name('contact.store');
 
 
-Route::get('/farmdetails', function () {
-    return view('farmdetails'); 
-});
-
-
 Route::middleware('auth')->group(function () {
     // Farm routes
     Route::get('/farmdetails', [FarmController::class, 'index'])->name('farms.index');
@@ -79,4 +74,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/farmdetails/{farm}/plots/{plot}/edit', [PlotController::class, 'edit'])->name('plots.edit');
     Route::put('/farmdetails/{farm}/plots/{plot}', [PlotController::class, 'update'])->name('plots.update');
     Route::delete('/farmdetails/{farm}/plots/{plot}', [PlotController::class, 'destroy'])->name('plots.destroy');
+
+    Route::get('/datamonitoring', [DataMonitoringController::class, 'index'])->name('datamonitoring');
 });

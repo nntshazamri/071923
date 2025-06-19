@@ -41,7 +41,7 @@ class FarmController extends Controller
         // Create farm
         $farm = Farm::create([
             'location' => $request->input('location'),
-            // 'size'     => $request->input('size'),
+            'size'     => $request->input('size'),
         ]);
 
         // Attach to user
@@ -54,72 +54,85 @@ class FarmController extends Controller
     /**
      * Show details of a single farm, including its plots.
      */
-    public function show(Farm $farm)
+   public function show(Farm $farm)
     {
-        // Ensure the authenticated user owns this farm via pivot
-        $user = Auth::user();
-        if (! $user->farms()->where('farmID', $farm->farmID)->exists()) {
-            abort(403);
-        }
-
-        // Eager-load plots
-        $farm->load('plots');
-        return view('farmdetails.show', compact('farm'));
+    // Ensure the authenticated user owns this farm via pivot
+    $user = Auth::user();
+    if (! $user->farms()->where('farms.farmID', $farm->farmID)->exists()) {
+        abort(403);
     }
 
+    // Eager-load plots
+    $farm->load('plots');
+    return view('farmdetails.show', compact('farm'));
+    }
     /**
      * Show form to edit a farm.
      */
     public function edit(Farm $farm)
     {
-        $user = Auth::user();
-        if (! $user->farms()->where('farmID', $farm->farmID)->exists()) {
-            abort(403);
-        }
-        return view('farmdetails.edit', compact('farm'));
+    $user = auth()->user();
+
+    // Fix: use table name to avoid ambiguity
+    $hasAccess = $user->farms()
+        ->where('user_farms.farmID', $farm->farmID)
+        ->exists();
+
+    if (!$hasAccess) {
+        abort(403, 'Unauthorized to edit this farm.');
+    }
+
+    return view('farmdetails.edit', compact('farm'));
     }
 
     /**
      * Update a farm.
      */
     public function update(Request $request, Farm $farm)
-    {
-        $user = Auth::user();
-        if (! $user->farms()->where('farmID', $farm->farmID)->exists()) {
-            abort(403);
-        }
+{
+    $user = auth()->user();
 
-        $request->validate([
-            'location' => 'required|string|max:255',
-            'size'     => 'nullable|string|max:100', // if added
-        ]);
+    // Use table name to disambiguate farmID
+    $hasAccess = $user->farms()
+        ->where('user_farms.farmID', $farm->farmID)
+        ->exists();
 
-        $farm->update([
-            'location' => $request->input('location'),
-            // 'size'     => $request->input('size'),
-        ]);
-
-        return redirect()->route('farms.index')
-                         ->with('success', 'Farm updated successfully.');
+    if (!$hasAccess) {
+        abort(403, 'Unauthorized to update this farm.');
     }
+
+    $request->validate([
+        'location' => 'required|string|max:255',
+        'size' => 'required|numeric',
+    ]);
+
+    $farm->update([
+        'location' => $request->location,
+        'size' => $request->size,
+    ]);
+
+    return redirect()->route('farms.index')->with('success', 'Farm updated successfully.');
+}
 
     /**
      * Delete a farm (and cascades delete its plots if FK ON DELETE CASCADE).
      */
-    public function destroy(Farm $farm)
+   public function destroy(Farm $farm)
     {
-        $user = Auth::user();
-        if (! $user->farms()->where('farmID', $farm->farmID)->exists()) {
-            abort(403);
-        }
+    $user = Auth::user();
 
-        // Detach pivot first
-        $user->farms()->detach($farm->farmID);
+    // Fix ambiguity by specifying table name
+    if (! $user->farms()->where('user_farms.farmID', $farm->farmID)->exists()) {
+        abort(403);
+    }
 
-        // Delete the farm; plots will be deleted if FK cascade is set
-        $farm->delete();
+    // Detach pivot first
+    $user->farms()->detach($farm->farmID);
 
-        return redirect()->route('farms.index')
-                         ->with('success', 'Farm deleted successfully.');
+    // Delete the farm; plots will be deleted if FK cascade is set
+    $farm->delete();
+
+    return redirect()->route('farms.index')
+                     ->with('success', 'Farm deleted successfully.');
     }
 }

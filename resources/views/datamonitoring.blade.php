@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -43,7 +44,7 @@
     <strong>{{ Auth::user()->name }}</strong>
     <a href="{{ route('userprofile') }}" class="nav-link {{ request()->is('userprofile') ? 'active' : '' }}">User Profile</a>
     <a href="{{ route('datamonitoring') }}" class="nav-link {{ request()->is('datamonitoring') ? 'active' : '' }}">Crop Data</a>
-    <a href="{{ url('/farmdetails') }}" class="nav-link {{ request()->is('farmdetails') ? 'active' : '' }}">Manage Farms</a>
+    <a href="{{ url('/farmdetails') }}" class="nav-link {{ request()->is('farmdetails*') ? 'active' : '' }}">Manage Farms</a>
     <a href="#" class="nav-link">Report Visualization</a>
   </div>
 
@@ -54,7 +55,7 @@
       {{-- Warning if fewer than 2 plots --}}
       @if ($totalPlots < 2)
         <div class="alert alert-warning text-dark">
-          You have only {{ $totalPlots }} plot(s). You need at least 2 plots to properly monitor and compare sensor data.
+          You have only {{ $totalPlots }} plot(s). Need at least 2 plots to compare data.
         </div>
       @endif
 
@@ -86,14 +87,14 @@
                 @endphp
                 @foreach($selectedFarmPlots as $plot)
                   <option value="{{ $plot->plotID }}" {{ request('plot') == $plot->plotID ? 'selected' : '' }}>
-                    Plot #{{ $plot->plotID }}
+                    Plot #{{ $plot->plotID }} @if($plot->crop)({{ ucfirst($plot->crop->name) }})@endif
                   </option>
                 @endforeach
               @else
                 @foreach($farmPlots as $farmId => $plots)
                   @foreach($plots as $plot)
                     <option value="{{ $plot->plotID }}" {{ request('plot') == $plot->plotID ? 'selected' : '' }}>
-                      Farm #{{ $farmId }} - Plot #{{ $plot->plotID }}
+                      Farm #{{ $farmId }} - Plot #{{ $plot->plotID }} @if($plot->crop)({{ ucfirst($plot->crop->name) }})@endif
                     </option>
                   @endforeach
                 @endforeach
@@ -106,60 +107,60 @@
         </div>
       </form>
 
-      {{-- Sensor Readings Table --}}
+      {{-- Monitoring Table --}}
       <table class="table table-striped table-bordered text-white">
         <thead>
-          <tr>
-            <th>No.</th>
-            <th>Plot ID</th>
-            <th>Moisture (%)</th>
-            <th>Temperature (°C)</th>
-            <th>Humidity (%)</th>
-            <th>Light (%)</th>
-            <th>Timestamp</th>
-            <th>Alert</th>
-          </tr>
-        </thead>
-        <tbody>
-          @forelse($readings as $index => $reading)
-            <tr>
-              <td>{{ $readings->firstItem() + $index }}</td>
-              <td>{{ $reading->plotID }}</td>
-              <td>{{ is_null($reading->soil_moisture) ? '-' : number_format($reading->soil_moisture, 1) . '%' }}</td>
-              <td>{{ is_null($reading->temperature) ? '-' : number_format($reading->temperature, 1) }}</td>
-              <td>{{ is_null($reading->humidity) ? '-' : number_format($reading->humidity, 1) }}</td>
-              <td>{{ is_null($reading->light) ? '-' : number_format($reading->light, 1) . '%' }}</td>
-              <td>{{ \Carbon\Carbon::parse($reading->created_at)->format('Y-m-d H:i:s') }}</td>
-              <td>
-                @php
-                  $alert = 'Normal';
-                  $badge = 'bg-success';
-                  if (!is_null($reading->soil_moisture)) {
-                    if ($reading->soil_moisture < 30) {
-                      $alert = 'Low Moisture';
-                      $badge = 'bg-danger';
-                    } elseif ($reading->soil_moisture > 80) {
-                      $alert = 'High Moisture';
-                      $badge = 'bg-warning';
-                    }
-                  }
-                @endphp
-                <span class="badge {{ $badge }}">{{ $alert }}</span>
-              </td>
-            </tr>
-          @empty
-            <tr>
-              <td colspan="8" class="text-center">No sensor readings found.</td>
-            </tr>
-          @endforelse
-        </tbody>
+  <tr>
+    <th>No.</th>
+    <th>Plot ID</th>
+    <th>Batch #</th>
+    <th>Crop</th>
+    <th>Moisture (avg %)</th>
+    <th>Temperature (avg °C)</th>
+    <th>Humidity (avg %)</th>
+    <th>Light (avg)</th>
+    <th>Last Timestamp</th>
+    <th>Alert</th>
+  </tr>
+</thead>
+<tbody>
+  @forelse($monitorData as $index => $item)
+    <tr>
+      <td>{{ $index + 1 }}</td>
+      <td>{{ $item['plot']->plotID }}</td>
+      <td>{{ $item['batchIndex'] }}</td>
+      <td>{{ $item['plot']->crop ? ucfirst($item['plot']->crop->name) : '-' }}</td>
+      <td>@if(is_null($item['avgSoil'])) - @else {{ number_format($item['avgSoil'],1) }}% @endif</td>
+      <td>@if(is_null($item['avgTemp'])) - @else {{ number_format($item['avgTemp'],1) }} @endif</td>
+      <td>@if(is_null($item['avgHum'])) - @else {{ number_format($item['avgHum'],1) }}% @endif</td>
+      <td>@if(is_null($item['avgLight'])) - @else {{ number_format($item['avgLight'],1) }} @endif</td>
+      <td>{{ optional(\Carbon\Carbon::parse($item['lastTimestamp']))->format('Y-m-d H:i:s') ?? '-' }}</td>
+      <td>
+        @if(empty($item['alerts']))
+          <span class="badge bg-success">Normal</span>
+        @else
+          @foreach($item['alerts'] as $alertType)
+            @php
+              if (\Illuminate\Support\Str::startsWith($alertType, 'Low')) {
+                  $color = 'bg-warning text-dark';
+              } elseif (\Illuminate\Support\Str::startsWith($alertType, 'High')) {
+                  $color = 'bg-danger';
+              } else {
+                  $color = 'bg-info';
+              }
+            @endphp
+            <span class="badge {{ $color }}">{{ $alertType }}</span>
+          @endforeach
+        @endif
+      </td>
+    </tr>
+  @empty
+    <tr>
+      <td colspan="10" class="text-center">No plots/data to display.</td>
+    </tr>
+  @endforelse
+</tbody>
       </table>
-
-      {{-- Pagination links --}}
-      <div class="mt-3">
-        {{ $readings->withQueryString()->links() }}
-      </div>
-
     </div>
   </div>
 
