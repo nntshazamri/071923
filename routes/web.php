@@ -10,6 +10,7 @@ use App\Http\Controllers\ContactInquiryController;
 use App\Http\Controllers\DataMonitoringController;
 use App\Http\Controllers\FarmController;
 use App\Http\Controllers\PlotController;
+use App\Http\Controllers\CropController;
 
 
 Route::middleware('auth')->group(function () {
@@ -77,3 +78,5 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/datamonitoring', [DataMonitoringController::class, 'index'])->name('datamonitoring');
 });
+//crops related
+Route::resource('crops', CropController::class)->middleware('auth');

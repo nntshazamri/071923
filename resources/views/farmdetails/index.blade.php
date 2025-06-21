@@ -10,6 +10,7 @@
   @endif
 
   <a href="{{ route('farms.create') }}" class="btn btn-light mb-3">+ Add New Farm</a>
+  <a href="{{ route('crops.index') }}" class="btn btn-light mb-3">Manage Crops</a>
 
   @if($farms->isEmpty())
     <p>No farms found. <a href="{{ route('farms.create') }}">Create one</a>.</p>

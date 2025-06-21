@@ -39,4 +39,5 @@ class Farm extends Model
     {
         return $this->hasMany(Plot::class, 'farmID', 'farmID');
     }
+    
 }

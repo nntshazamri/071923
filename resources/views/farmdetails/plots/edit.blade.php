@@ -33,6 +33,18 @@
       <input type="text" name="max_longitude" class="form-control" value="{{ old('max_longitude', $plot->max_longitude) }}" required>
       @error('max_longitude')<div class="text-danger">{{ $message }}</div>@enderror
     </div>
+    <div class="form-group mb-3">
+  <label class="form-label text-white">Crop Type</label>
+  <select name="cropID" class="form-select">
+    <option value="">-- Select Crop --</option>
+    @foreach ($crops as $crop)
+      <option value="{{ $crop->id }}" {{ old('cropID', $plot->cropID) == $crop->id ? 'selected' : '' }}>
+        {{ ucfirst($crop->name) }}
+      </option>
+    @endforeach
+  </select>
+  @error('cropID')<div class="text-danger">{{ $message }}</div>@enderror
+  </div>
     <button type="submit" class="btn btn-update">Update Plot</button>
     <a href="{{ route('farms.show', $farm->farmID) }}" class="btn btn-secondary">Cancel</a>
   </form>
