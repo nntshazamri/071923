@@ -87,17 +87,23 @@ class VisualizationController extends Controller
 
         $callback = function () use ($readings) {
             $file = fopen('php://output', 'w');
-            fputcsv($file, ['Date', 'Plot ID', 'Soil Moisture', 'Temperature', 'Humidity', 'Light']);
+            fputcsv($file, ['Date', 'Farm', 'Plot', 'Soil Moisture', 'Temperature', 'Humidity', 'Light']);
+
             foreach ($readings as $r) {
+                $farmName = optional($r->plot->farm)->location ?? 'N/A';
+                $plotName = optional($r->plot)->name ?? 'N/A';
+
                 fputcsv($file, [
                     $r->created_at,
-                    $r->plotID,
+                    $farmName,
+                    $plotName,
                     $r->soil_moisture,
                     $r->temperature,
                     $r->humidity,
                     $r->light,
                 ]);
             }
+
             fclose($file);
         };
 
@@ -106,31 +112,35 @@ class VisualizationController extends Controller
 
     public function exportPdf(Request $request)
     {
-    $user = Auth::user();
+        $readings = $this->getFilteredReadings($request);
 
-    $q = SensorReading::query();
-
-    if ($request->filled('farm')) {
-        $plotIDs = Plot::where('farmID', $request->farm)->pluck('plotID');
-        $q->whereIn('plotID', $plotIDs);
+        $pdf = Pdf::loadView('visualize.pdf', compact('readings'));
+        return $pdf->download('sensor_data_' . now()->format('Ymd_His') . '.pdf');
     }
 
-    if ($request->filled('plot')) {
-        $q->where('plotID', $request->plot);
-    }
+    // ✅ This is the missing method that filters readings
+    private function getFilteredReadings(Request $request)
+    {
+        $q = SensorReading::with('plot.farm');
 
-    if ($request->filled('start_date')) {
-        $q->whereDate('created_at', '>=', $request->start_date);
-    }
+        if ($request->filled('farm')) {
+            $plotIDs = Plot::where('farmID', $request->farm)->pluck('plotID');
+            $q->whereIn('plotID', $plotIDs);
+        }
 
-    if ($request->filled('end_date')) {
-        $q->whereDate('created_at', '<=', $request->end_date);
-    }
+        if ($request->filled('plot')) {
+            $q->where('plotID', $request->plot);
+        }
 
-    // Eager-load plot and farm
-    $readings = $q->with('plot.farm')->orderBy('created_at')->get();
+        if ($request->filled('start_date')) {
+            $q->whereDate('created_at', '>=', $request->start_date);
+        }   
 
-    $pdf = Pdf::loadView('visualize.pdf', compact('readings'));
-    return $pdf->download('sensor_readings_report.pdf');
+        if ($request->filled('end_date')) {
+            $q->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        return $q->orderBy('created_at')->get();
     }
 }
+

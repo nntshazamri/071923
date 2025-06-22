@@ -60,31 +60,31 @@
 <div class="row">
   <div class="col-md-6 mb-4">
     <div class="card p-3" style="height: 300px;">
-      <h5>Soil Moisture (Bar)</h5>
+      <h5>Soil Moisture</h5>
       <canvas id="soilChart"></canvas>
     </div>
   </div>
   <div class="col-md-6 mb-4">
     <div class="card p-3" style="height: 300px;">
-      <h5>Temperature (Bar)</h5>
+      <h5>Temperature</h5>
       <canvas id="tempChart"></canvas>
     </div>
   </div>
   <div class="col-md-6 mb-4">
     <div class="card p-3" style="height: 300px;">
-      <h5>Humidity (Bar)</h5>
+      <h5>Humidity</h5>
       <canvas id="humChart"></canvas>
     </div>
   </div>
   <div class="col-md-6 mb-4">
     <div class="card p-3" style="height: 300px;">
-      <h5>Light (Bar)</h5>
+      <h5>Light</h5>
       <canvas id="lightChart"></canvas>
     </div>
   </div>
   <div class="col-md-6 mb-4">
     <div class="card p-3" style="height: 300px;">
-      <h5>Average Sensor Readings (Pie)</h5>
+      <h5>Average Sensor Readings</h5>
       <canvas id="pieChart"></canvas>
     </div>
   </div>
