@@ -11,6 +11,7 @@ use App\Http\Controllers\DataMonitoringController;
 use App\Http\Controllers\FarmController;
 use App\Http\Controllers\PlotController;
 use App\Http\Controllers\CropController;
+use App\Http\Controllers\VisualizationController;
 
 
 Route::middleware('auth')->group(function () {
@@ -80,3 +81,15 @@ Route::middleware('auth')->group(function () {
 });
 //crops related
 Route::resource('crops', CropController::class)->middleware('auth');
+
+//visualization part
+Route::middleware(['auth'])->group(function () {
+    Route::get('/visualize', [VisualizationController::class, 'index'])
+         ->name('visualize.index');
+
+    Route::get('/visualize/export-csv', [VisualizationController::class, 'exportCsv'])
+         ->name('visualize.exportCsv');
+
+    Route::get('/visualize/export-pdf', [VisualizationController::class, 'exportPdf'])
+         ->name('visualize.exportPdf');
+});

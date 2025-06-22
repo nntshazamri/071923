@@ -35,8 +35,9 @@ class SensorReading extends Model
      * Relationship: a SensorReading belongs to a Plot.
      * Assumes you have a Plot model with primaryKey 'plotID'.
      */
+
     public function plot()
-    {
-        return $this->belongsTo(Plot::class, 'plotID', 'plotID');
-    }
+{
+    return $this->belongsTo(\App\Models\Plot::class, 'plotID', 'plotID');
+}
 }

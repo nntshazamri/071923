@@ -8,6 +8,7 @@
   <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
   <link href="{{ asset('assets/vendor/bootstrap-icons/bootstrap-icons.css') }}" rel="stylesheet">
   <link href="{{ asset('assets/css/custom.css') }}" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
   <!-- Inline Styles -->
   <style>
@@ -133,8 +134,11 @@
       Manage Farms
     </a>
 
-    <a href="#" class="nav-link">Report Visualization</a>
+   <a href="{{ route('visualize.index') }}" class="nav-link {{ request()->is('visualize') ? 'active' : '' }}">
+    Report Visualization
+  </a>
   </div>
+
 
   <!-- Main Content -->
   <div class="main-content">
@@ -143,5 +147,6 @@
 
   <!-- Scripts -->
   <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+  @yield('scripts')  <!-- This allows Blade views to inject page-specific scripts -->
 </body>
 </html>

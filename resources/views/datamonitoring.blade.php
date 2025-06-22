@@ -45,7 +45,9 @@
     <a href="{{ route('userprofile') }}" class="nav-link {{ request()->is('userprofile') ? 'active' : '' }}">User Profile</a>
     <a href="{{ route('datamonitoring') }}" class="nav-link {{ request()->is('datamonitoring') ? 'active' : '' }}">Crop Data</a>
     <a href="{{ url('/farmdetails') }}" class="nav-link {{ request()->is('farmdetails*') ? 'active' : '' }}">Manage Farms</a>
-    <a href="#" class="nav-link">Report Visualization</a>
+    <a href="{{ route('visualize.index') }}" class="nav-link {{ request()->is('visualize') ? 'active' : '' }}">
+    Report Visualization
+    </a>
   </div>
 
   <div class="main-content">
